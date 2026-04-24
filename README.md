@@ -2,15 +2,6 @@
 
 This repository compares convolutional Autoencoders (AE) and Variational Autoencoders (VAE) on Medical MNIST, using one model per anatomical region.
 
-## Refactor Summary
-
-This codebase was refactored to match course conventions:
-
-- PEP 8 oriented module design under `src/`
-- Type hints and PEP 257 docstrings in core modules
-- Standard directories for data, notebooks, source, and tests
-- Model versioning and reproducibility metadata files
-- Lint/format/test setup with `flake8`, `black`, and `pytest`
 
 ## Project Structure
 
