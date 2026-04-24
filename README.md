@@ -123,7 +123,5 @@ Tests:
 pytest
 ```
 
-## Backward Compatibility
 
-Legacy imports (`configs.*`, `training.*`, `utils.*`, `models.*`) still work via wrapper modules, but all new code should import from `src.*`.
 
