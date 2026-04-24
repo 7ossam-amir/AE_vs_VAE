@@ -1,0 +1,28 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+
+# Test/cache artifacts
+.pytest_cache/
+pytest-cache-files-*/
+
+# Local output artifacts
+outputs/
+plots/
+
+# Dataset payloads
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Trained model outputs
+models/checkpoints/*
+!models/checkpoints/.gitkeep
+models/metadata/*
+!models/metadata/.gitkeep

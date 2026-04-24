@@ -1,50 +1,129 @@
-# DSAI 490 – Assignment 1: Representation Learning with Autoencoders
+# AE vs VAE - DSAI 490 Assignment 1
+
+This repository compares convolutional Autoencoders (AE) and Variational Autoencoders (VAE) on Medical MNIST, using one model per anatomical region.
+
+## Refactor Summary
+
+This codebase was refactored to match course conventions:
+
+- PEP 8 oriented module design under `src/`
+- Type hints and PEP 257 docstrings in core modules
+- Standard directories for data, notebooks, source, and tests
+- Model versioning and reproducibility metadata files
+- Lint/format/test setup with `flake8`, `black`, and `pytest`
 
 ## Project Structure
 
-```
+```text
 dsai490_ae_vae/
-├── configs/
-│   └── config.py           # Hyperparameters and dataset paths
-├── models/
-│   ├── autoencoder.py      # AE architecture (per region)
-│   └── vae.py              # VAE architecture (per region)
-├── training/
-│   ├── trainer.py          # Training loops for AE & VAE
-│   └── losses.py           # Reconstruction + KL divergence losses
-├── utils/
-│   ├── data_loader.py      # tf.data pipeline for Medical MNIST
-│   ├── visualizer.py       # Latent space & reconstruction plots
-│   └── metrics.py          # SSIM, MSE evaluation helpers
-├── experiment_notebook.ipynb   # Full experiment pipeline
-└── README.md
+|-- data/
+|   |-- raw/
+|   `-- processed/
+|-- models/
+|   |-- checkpoints/
+|   `-- metadata/
+|-- notebooks/
+|   `-- experiment_notebook.ipynb
+|-- src/
+|   |-- __init__.py
+|   |-- config.py
+|   |-- data_processing.py
+|   |-- losses.py
+|   |-- metrics.py
+|   |-- model.py
+|   |-- train.py
+|   `-- visualization.py
+|-- tests/
+|   |-- test_data_processing.py
+|   `-- test_model.py
+|-- configs/   (legacy compatibility wrappers)
+|-- training/  (legacy compatibility wrappers)
+|-- utils/     (legacy compatibility wrappers)
+|-- requirements.txt
+|-- pyproject.toml
+|-- .flake8
+`-- README.md
 ```
-
-## Dataset: Medical MNIST
-- 6 anatomical regions: AbdomenCT, BreastMRI, ChestCT, ChestXRay, Hand, HeadCT
-- Each 64×64 grayscale images
-- Upload to Google Drive → mount in Colab → pass path in `config.py`
 
 ## Setup
 
 ```bash
-pip install tensorflow matplotlib seaborn scikit-learn umap-learn
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# macOS/Linux
+# source .venv/bin/activate
+
+pip install -r requirements.txt
 ```
 
-## Quick Start (Colab)
+## Data Layout
 
-1. Upload `MedicalMNIST.zip` to Google Drive.
-2. Mount Drive and unzip:
-   ```python
-   from google.colab import drive
-   drive.mount('/content/drive')
-   !unzip /content/drive/MyDrive/MedicalMNIST.zip -d /content/medical_mnist
-   ```
-3. Set `DATA_ROOT = "/content/medical_mnist"` in `configs/config.py`.
-4. Open and run `experiment_notebook.ipynb`.
+Place extracted Medical MNIST files in:
 
-## Key Design Decisions
-- **Separate AE & VAE per anatomical region** – each region gets its own trained model.
-- **tf.data pipeline** – efficient prefetching and augmentation.
-- **Latent dim = 16** (configurable) – large enough for expressiveness, small enough to visualize with UMAP/PCA.
-- **Denoising mode** – Gaussian noise is added to inputs during AE training.
+```text
+data/raw/MedicalMNIST/
+|-- AbdomenCT/
+|-- BreastMRI/
+|-- ChestCT/
+|-- ChestXRay/
+|-- Hand/
+`-- HeadCT/
+```
+
+If your dataset is elsewhere, update `DATA_ROOT` in `src/config.py`.
+
+## Training
+
+```python
+from src.train import train_autoencoder, train_vae
+
+ae_result = train_autoencoder(region="ChestXRay", denoising=True)
+vae_result = train_vae(region="ChestXRay")
+```
+
+Saved artifacts:
+
+- Best weights: `models/checkpoints/<MODEL>_<REGION>_v<version>_best.weights.h5`
+- Metadata: `models/metadata/<model_type>_<REGION>_v<version>.json`
+
+Metadata includes timestamp, data root, validation split, hyperparameters, and training history.
+
+## Evaluation
+
+```python
+from src.metrics import evaluate_model
+
+metrics = evaluate_model(ae_result["model"], region="ChestXRay", model_type="ae")
+print(metrics)
+```
+
+## Notebook
+
+The notebook now lives at `notebooks/experiment_notebook.ipynb` and imports from `src.*`.
+
+## Code Quality
+
+Format:
+
+```bash
+black src tests
+```
+
+Lint:
+
+```bash
+flake8 src tests
+pylint src
+```
+
+Tests:
+
+```bash
+pytest
+```
+
+## Backward Compatibility
+
+Legacy imports (`configs.*`, `training.*`, `utils.*`, `models.*`) still work via wrapper modules, but all new code should import from `src.*`.
+
